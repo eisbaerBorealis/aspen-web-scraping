@@ -17,4 +17,9 @@ This program was developed with Thonny on Windows 7
     * '-'
   * Change filename to the desired output file name (ending with .csv)
 * Run the program
-When I ran this program, it took about 25 minutes to run through 5,900 webpages
+
+
+## Notes
+* When I ran this program, it took about 25 minutes to run through 5,923 webpages
+* When I opened this in Microsoft Excel, it interprets some cells under Pages as dates, e.g. 1-2 becomes Jan-02
+* I will research an Excel fix and post the instructions here
