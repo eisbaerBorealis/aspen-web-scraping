@@ -3,7 +3,7 @@ import requests
 import csv
 
 # change this to what you want your default value to be
-not_found = 'Not found'
+not_found = ''
 filename = 'aspen-research.csv'
 
 # Dec 24, 2019: processed 5,923 pages in ~25 minutes
@@ -11,7 +11,7 @@ filename = 'aspen-research.csv'
 def main():
     with open(filename, 'w', newline='', encoding='utf-8') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=',')
-        csv_writer.writerow(['Record ID', 'Authors', 'Title', 'Publication', 'Volume', 'Issue', 'Pages', 'DOI', 'Abstract', 'URL', 'Publication Type', 'Year'])
+        csv_writer.writerow(['Record ID', 'Authors', 'Title', 'Publication', 'Volume', 'Issue', 'Pages', 'DOI', 'Abstract', 'PDF URL', 'URL', 'Publication Type', 'Year', 'Latitude', 'Longitude'])
         
         bib_url = 'https://digitalcommons.usu.edu/aspen_bib/'
         bib_source = requests.get(bib_url).text
@@ -44,15 +44,17 @@ def main():
                 title = get_title(article_info)
                 publication = get_p_text(article_info, 'source_publication')
                 volume = get_p_text(article_info, 'volnum')
-                issue = get_p_text(article_info, 'issnum')
+                issue = '\'' + get_p_text(article_info, 'issnum')
                 pages = get_pages(article_info)
-                doi = get_p_text(article_info, 'doi')
+                doi = get_doi(soup)
                 abstract = get_p_text(article_info, 'abstract')
-                url = get_url(soup)
+                pdf_url = get_url(soup)
                 publication_type = get_p_text(article_info, 'document_type')
                 year = get_year(article_info)
+                lat = 0
+                long = 0
                 
-                csv_writer.writerow([recordId, authors, title, publication, volume, issue, pages, doi, abstract, url, publication_type, year])
+                csv_writer.writerow([recordId, authors, title, publication, volume, issue, pages, doi, abstract, pdf_url, page_url, publication_type, year, lat, long])
     csv_file.close()
     print('Process complete.')
 # END main()
@@ -88,11 +90,18 @@ def get_p_text(soup, e_id):
 def get_pages(soup):
     text = not_found
     if(soup.find(id='fpage') != None):
-        text = soup.find(id='fpage').p.text
+        text = '\'' + soup.find(id='fpage').p.text
     if(soup.find(id='lpage') != None):
-        text += ' - ' + soup.find(id='lpage').p.text
+        text += '-' + soup.find(id='lpage').p.text
     return text
 # END get_pages(soup)
+
+def get_doi(soup):
+    text = not_found
+    if(soup.find(id='doi') != None):
+        text = soup.find(id='doi').p.a.text
+    return text
+# END get_p_text(soup, e_id)
 
 def get_url(soup):
     text = not_found
